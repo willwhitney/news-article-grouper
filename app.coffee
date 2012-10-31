@@ -1,7 +1,7 @@
 express = require 'express'
 lessMiddleware = require 'less-middleware'
 moment = require 'moment'
-content = require './content'
+content = require './content-manager'
 
 app = express()
 app.configure ->
