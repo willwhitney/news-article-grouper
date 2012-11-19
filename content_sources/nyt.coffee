@@ -15,27 +15,49 @@ diffbot_url = (targetURL) ->
 
 article_store = {}
 
-fetch = ->
+fetch = (finished_callback) ->
 	console.log 'Fetching NYT at ' + moment().format('dddd, MMMM Do YYYY, h:mm:ss a')
 	request NYT_url, (error, response, body) ->
 		if !error and response.statusCode == 200
 			articles = JSON.parse(body).results
 			for article in articles
+				# console.log article.title
+				# console.log article.abstract
+				# console.log "section: #{article.section}  type: #{article.type}"
+				# console.log article.des_facet
+				# console.log '\n'
 				article_store[article.id] = article
 				fetch_more article
+		setTimeout( () ->
+			console.log(JSON.stringify(article_store))
+		, 10000)
+			# get_articles_by_story('PRESIDENTIAL ELECTION OF 2012')
 	
 fetch_more = (article) ->
 	request diffbot_url(article.url), (error, response, body) ->
 		if !error and response.statusCode == 200
 			article.text = JSON.parse(body).text
-			console.log article_store[article.id].text
+			# console.log article_store[article.id]
 		else
 			console.error """Diffbot error.
 			Error: #{error}
 			Response: #{response}
 			Body: #{body}
 			"""
+			
+# fetch_more_multiple = (articles)
 
+get_articles_by_story = (story) ->
+	for article_id of article_store
+		article = article_store[article_id]
+		if article.des_facet? and story in article.des_facet and article.section != 'Opinion'
+			console.log article.title
+			console.log article.abstract
+			console.log "section: #{article.section}  type: #{article.type}"
+			console.log article.des_facet
+			console.log '\n'
+	process.exit(0)
+			
 start_fetching = ->
 	fetch()
 	setInterval ->
@@ -46,3 +68,4 @@ start_fetching = ->
 
 exports.fetch = fetch
 exports.start_fetching = start_fetching
+exports.get_articles_by_story = get_articles_by_story
