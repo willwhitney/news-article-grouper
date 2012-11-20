@@ -1,9 +1,9 @@
 window.scrollcount = 0
 window.onScroll = (e, delta) ->
-	delta = 2
+	# delta = 2
 	e.preventDefault()
-	window.scrollcount++
-	console.log window.scrollcount
+	# window.scrollcount++
+	# console.log window.scrollcount
 	
 	minHeight = 5
 	maxHeight = 800
@@ -20,8 +20,8 @@ window.onScroll = (e, delta) ->
 		pair[0].css('top', Math.round(parseInt(pair[0].css('top'), 10) + delta*pair[1]) + 'px')
 
 
-# $(window).mousewheel(window.onScroll)
-$(document).scroll(window.onScroll)
+$(window).mousewheel(window.onScroll)
+# $(document).scroll(window.onScroll)
 	
 	
 	
