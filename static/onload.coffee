@@ -1,18 +1,19 @@
 $ ->
-	# $(document).scrollTop($(document).height())
+	previewHeight = 30
 	$('.lightbox').css('visibility', 'visible')
-	# window.onScroll()
+	
+	_.each $('.card_stack'), (stack) ->
+		_.each $(stack).children(), (child, i, list) ->
+			$(child).css 'top', i * previewHeight + 'px'
+			# $(child).css 'left', $(child).position().left + i * leftOffset + 'px'
+# 			extraHeight = parseInt( $(child).css('height'), 10 ) - (previewHeight - 10)
+# console.log extraHeight
 	
 	###
 	previewHeight = 22
 	leftOffset = 5
 	
-	_.each $('.card_stack'), (stack) ->
-		 _.each $(stack).children(), (child, i, list) ->
-		 	$(child).css 'top', i * previewHeight + 'px'
-		 	# $(child).css 'left', $(child).position().left + i * leftOffset + 'px'
-		 	extraHeight = parseInt( $(child).css('height'), 10 ) - (previewHeight - 10)
-		 	console.log extraHeight
+	
 		 	
 		 	
 		 	$(child).hover (inEvent) ->
