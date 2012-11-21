@@ -1,9 +1,7 @@
 $ ->
 	# $(document).scrollTop($(document).height())
-	
+	$('.lightbox').css('visibility', 'visible')
 	window.onScroll(null, null, null, 0)
-	$('.card_stack').css('visibility', 'visible')
-	
 	# previewHeight = 20
 	# _.each $('.card_stack'), (stack) ->
 	# 	_.each $(stack).children(), (child, i, list) ->
