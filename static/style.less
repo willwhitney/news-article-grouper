@@ -1,3 +1,8 @@
+@lightbox_width: 600px;
+@card_height: 600px;
+@card_minimum: 5px;
+@card_margin_bottom: @card_minimum - @card_height;
+
 body {
 	overflow: hidden;
 	background: transparent url('assets/light_toast_@2x.png') repeat;
@@ -34,11 +39,12 @@ body {
 		margin: 0 auto;
 		background-color: white;
 		padding: 5px 5px 5px 5px;
-		overflow: hidden;
+		overflow-x: visible;
 		
 		.article_text {
 			overflow: hidden;
 			float: left;
+			height: @card_height - 95px;
 		}
 	}
 	
@@ -54,10 +60,7 @@ body {
 	}
 }
 
-@lightbox_width: 600px;
-@card_height: 600px;
-@card_minimum: 5px;
-@card_margin_bottom: @card_minimum - @card_height;
+
 
 .lightbox {
 	position: absolute;
@@ -74,7 +77,7 @@ body {
 		margin-bottom: 30px;
 		width: @lightbox_width;
 		padding-bottom: 30px;
-		visibility: hidden;
+		visibility: visible;
 	}
 	
 	.card {
@@ -84,20 +87,29 @@ body {
 		margin-left: -1 * @lightbox_width / 2;
 		width: @lightbox_width;
 		height: @card_height;
-		box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.1); // blur is SLOOOW
-		border: 1px rgba(0, 0, 0, 0.4) solid;           // helping fake blur
 		
+		// fake blur hacks, still a little slow
+		// box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.1); // blur is SLOOOW
+		// border: 1px rgba(0, 0, 0, 0.4) solid;           // helping fake blur
+		// outline: 1px rgba(0, 0, 0, 0.2) solid;
+		
+		border: 1px gray solid;
+
 		.timestamp {
-			display: none;
+			/* display: none; */
 			position: absolute;
-			width: 100px;
+			white-space: nowrap;
+			width: 70px;
 			top: 5px;
 			left: @lightbox_width + 20px;
-			color: white;
+			color: rgb(125, 2, 2);
 			font-weight:100;
 			font-size: 13px;
-			padding: 0px;
+			text-align: center;
+			padding: 3px;
 			margin: 0px;
+			border: 1px #000 solid;
+			background-color: white;
 		}
 	}
 	

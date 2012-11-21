@@ -29,7 +29,6 @@ window.onScroll = (e, d, dx, delta) ->
 		#       |               |
 		# speed of linearity  top offset
 		
-		
 		# hyperbola, for proper end behavior
 		term2 = 10*800 * Math.pow( Math.pow(Math.max(0, x)/3.5, 24) + 1, 1/24) - 800*10
 		#         ^                                         ^    ^         ^         ^
@@ -39,6 +38,6 @@ window.onScroll = (e, d, dx, delta) ->
 		max = term1 + term2
 				
 		height = max
-		child.css('top', Math.round(height) + 'px')
+		child.css('top', height + 'px')
 	
 $(window).mousewheel(window.onScroll)
