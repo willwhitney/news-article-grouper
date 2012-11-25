@@ -39,5 +39,8 @@ window.onScroll = (e, d, dx, delta) ->
 				
 		height = max
 		child.css('top', height + 'px')
-	
-$(window).mousewheel(window.onScroll)
+
+initShadow = ->
+	window.onScroll(null, null, null, 0)
+	$('.card_stack').css('visibility', 'visible')
+	$(window).mousewheel(window.onScroll)
