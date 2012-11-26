@@ -1,11 +1,18 @@
 request = require 'request'
 moment = require 'moment'
+# $ = require 'jquery'
 constants = require '../constants'
 
 NYT_base_url = 'http://api.nytimes.com/svc/'
 NYT_section_fragment = 'mostpopular/v2/mostviewed/all-sections/1.json'
 NYT_key_fragment = '?api-key=' + constants.nyt_most_popular_key
-NYT_url = NYT_base_url + NYT_section_fragment + NYT_key_fragment
+
+NYT_url = (offset) ->
+	if !offset?
+		return NYT_base_url + NYT_section_fragment + NYT_key_fragment
+	return NYT_base_url + NYT_section_fragment + NYT_key_fragment + '&offset=' + offset
+
+
 
 diffbot_base_url = 'http://www.diffbot.com/api/article'
 diffbot_token_fragment = '?token=' + constants.diffbot_token
@@ -15,57 +22,130 @@ diffbot_url = (targetURL) ->
 
 article_store = {}
 
-fetch = (finished_callback) ->
+fetch = (finished_callback, offset) ->
 	console.log 'Fetching NYT at ' + moment().format('dddd, MMMM Do YYYY, h:mm:ss a')
-	request NYT_url, (error, response, body) ->
+	request NYT_url(offset), (error, response, body) ->
 		if !error and response.statusCode == 200
 			articles = JSON.parse(body).results
+			console.log "Received #{articles.length} results from the NYT."
 			for article in articles
 				# console.log article.title
 				# console.log article.abstract
 				# console.log "section: #{article.section}  type: #{article.type}"
 				# console.log article.des_facet
 				# console.log '\n'
+				facets = []
+				for facet in article.des_facet
+					facets.push facet.replace(/\s+/g, '')
+				article.nospace_facets = facets
 				article_store[article.id] = article
-				fetch_more article
-		setTimeout( () ->
-			console.log(JSON.stringify(article_store))
-		, 10000)
-			# get_articles_by_story('PRESIDENTIAL ELECTION OF 2012')
+				fetch_body article
+		# setTimeout( () ->
+		# 	get_articles_by_story('ENTREPRENEURSHIP')
+		# , 10000)
+		if finished_callback?
+			finished_callback(article_store)
+
+fetch_many = (finished_callback, count) ->
+	queries = Math.ceil(count / 20)
+	returned = 0
+	increment_returned = ->
+		returned++
+		if returned == queries
+			return finished_callback(article_store)
+	for i in [0...queries]
+		fetch(increment_returned, i * 20)
 	
-fetch_more = (article) ->
+fetch_body = (article) ->
 	request diffbot_url(article.url), (error, response, body) ->
 		if !error and response.statusCode == 200
-			article.text = JSON.parse(body).text
+			text = JSON.parse(body).text
+			if text?
+				article.text = text.replace("\n", "<br /><br />","g")
+			else
+				article.text = undefined
 			# console.log article_store[article.id]
 		else
-			console.error """Diffbot error.
-			Error: #{error}
-			Response: #{response}
-			Body: #{body}
-			"""
+			# console.error """
+			# \n
+			# Diffbot error.
+			# Error: #{error}
+			# Body: #{body}
+			# Article:
+			# """
+			# console.error article
+			# console.error '\n'
+			delete article_store[article.id]
 			
-# fetch_more_multiple = (articles)
-
+get_article_by_id = (id) ->
+	return article_store[id]
+			
 get_articles_by_story = (story) ->
-	for article_id of article_store
-		article = article_store[article_id]
-		if article.des_facet? and story in article.des_facet and article.section != 'Opinion'
-			console.log article.title
-			console.log article.abstract
-			console.log "section: #{article.section}  type: #{article.type}"
-			console.log article.des_facet
-			console.log '\n'
-	process.exit(0)
+	if story?
+		story = story.replace(/\s+/g, '')
+		stories = {}
+		stories[story] = []
+		for article_id of article_store
+			article = article_store[article_id]
+			if article.nospace_facets? and story in article.nospace_facets and article.section != 'Opinion'
+				stories[story].push(article)
+				# console.log article.title
+				# console.log article.abstract
+				# console.log "section: #{article.section}  type: #{article.type}"
+				# console.log article.des_facet
+				# console.log '\n
+		return stories
+	else
+		stories = {}
+		for article_id of article_store
+			article = article_store[article_id]
+			if article.des_facet? and article.section != 'Opinion'
+				for facet in article.des_facet
+					stories[facet] = [] if !stories[facet]?
+					stories[facet].push(article)
+		return stories
+	
+rank_stories_by_article_quantity = (stories) ->
+	sorted_keys = Object.keys(stories).sort (one, two) ->
+		if stories[one].length > stories[two].length
+			return -1
+		if stories[two].length > stories[one].length
+			return 1
+		return 0
+	return sorted_keys
+	
+get_top_stories = ->
+	stories = get_articles_by_story()
+	story_keys = rank_stories_by_article_quantity(stories)[0..5]
+
 			
 start_fetching = ->
-	fetch()
-	setInterval ->
-		fetch()
-	, 5 * (60 * 1000)
+	fetch_many(() ->
+		console.log Object.keys(article_store).length
+		stories = get_articles_by_story()
+		# console.log typeof stories
+		# console.log Object.keys(stories)
+		
+		sorted_keys = Object.keys(stories).sort (one, two) ->
+			if stories[one].length > stories[two].length
+				return -1
+			if stories[two].length > stories[one].length
+				return 1
+			return 0
+			
+		for key in sorted_keys
+			console.log key, stories[key].length
+		
+	,200)
+	# setInterval ->
+	# 	fetch()
+	# , 5 * (60 * 1000)
 	
 
 
 exports.fetch = fetch
+exports.get_article_by_id = get_article_by_id
+exports.fetch_many = fetch_many
 exports.start_fetching = start_fetching
 exports.get_articles_by_story = get_articles_by_story
+exports.rank_stories_by_article_quantity = rank_stories_by_article_quantity

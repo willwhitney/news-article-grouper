@@ -5,7 +5,7 @@ mixin article(item)
       h2.title #{item.title}
     h3.timestamp.light #{item.pretty_timestamp}
     for para in item.desk_paragraphs
-      p !{para} 
+      p !{para}
         if para == item.desk_paragraphs[item.desk_paragraphs.length - 1]
           a.more( href="#{item.link}" ) MORE >>
 
