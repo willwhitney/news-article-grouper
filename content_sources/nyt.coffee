@@ -38,8 +38,9 @@ fetch = (finished_callback, offset) ->
 				for facet in article.des_facet
 					facets.push facet.replace(/\s+/g, '')
 				article.nospace_facets = facets
-				article_store[article.id] = article
-				fetch_body article
+				if !article_store[article.id]?
+					article_store[article.id] = article
+					fetch_body article
 		# setTimeout( () ->
 		# 	get_articles_by_story('ENTREPRENEURSHIP')
 		# , 10000)
@@ -52,7 +53,10 @@ fetch_many = (finished_callback, count) ->
 	increment_returned = ->
 		returned++
 		if returned == queries
-			return finished_callback(article_store)
+			console.log "Finished fetching NYT."
+			if finished_callback?
+				return finished_callback(article_store)
+			return
 	for i in [0...queries]
 		fetch(increment_returned, i * 20)
 	
@@ -66,15 +70,15 @@ fetch_body = (article) ->
 				article.text = undefined
 			# console.log article_store[article.id]
 		else
-			# console.error """
-			# \n
-			# Diffbot error.
-			# Error: #{error}
-			# Body: #{body}
-			# Article:
-			# """
-			# console.error article
-			# console.error '\n'
+			console.error """
+			\n
+			Diffbot error.
+			Error: #{error}
+			Body: #{body}
+			Article:
+			"""
+			console.error article
+			console.error '\n'
 			delete article_store[article.id]
 			
 get_article_by_id = (id) ->
@@ -120,26 +124,26 @@ get_top_stories = ->
 
 			
 start_fetching = ->
-	fetch_many(() ->
-		console.log Object.keys(article_store).length
-		stories = get_articles_by_story()
+	fetch_many(null, 300)
+		# console.log "Finished fetching NYT."
+		# console.log Object.keys(article_store).length
+		# stories = get_articles_by_story()
 		# console.log typeof stories
 		# console.log Object.keys(stories)
 		
-		sorted_keys = Object.keys(stories).sort (one, two) ->
-			if stories[one].length > stories[two].length
-				return -1
-			if stories[two].length > stories[one].length
-				return 1
-			return 0
-			
-		for key in sorted_keys
-			console.log key, stories[key].length
+		# sorted_keys = Object.keys(stories).sort (one, two) ->
+		# 	if stories[one].length > stories[two].length
+		# 		return -1
+		# 	if stories[two].length > stories[one].length
+		# 		return 1
+		# 	return 0
+		#
+		# for key in sorted_keys
+		# 	console.log key, stories[key].length
 		
-	,200)
-	# setInterval ->
-	# 	fetch()
-	# , 5 * (60 * 1000)
+	setInterval ->
+		fetch_many(null, 500)
+	, 60 * (60 * 1000)
 	
 
 
