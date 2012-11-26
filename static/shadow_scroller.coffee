@@ -1,9 +1,9 @@
 window.scrollsum = 0
-window.onScroll = (e, d, dx, delta) ->
-	if e?
+window.onScroll = (e, delta, dx, dy) ->
+	if e? and Math.abs(dy) - Math.abs(dx) > 0
 		e.preventDefault()
 
-	window.scrollsum += delta
+	window.scrollsum += dy
 	window.scrollsum = Math.max(60, window.scrollsum)
 
 	# cache this lookup
@@ -40,7 +40,14 @@ window.onScroll = (e, d, dx, delta) ->
 		height = max
 		child.css('top', height + 'px')
 
+# window.onScroll(null, null, null, 0)
+# $('.card_stack').css('visibility', 'visible')
+# $(window).mousewheel(window.onScroll)
+
 initShadow = ->
 	window.onScroll(null, null, null, 0)
 	$('.card_stack').css('visibility', 'visible')
 	$(window).mousewheel(window.onScroll)
+	
+$ ->
+	initShadow()
