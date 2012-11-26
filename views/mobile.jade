@@ -1,13 +1,11 @@
 !!! 5
 mixin article(item)
   .article
-    a( href="#{item.link}" )
+    a( href="#{item.url}" )
       h1.title #{item.title}
-    h2.timestamp.light #{item.pretty_timestamp}
-    for para in item.mob_paragraphs
-      p !{para} 
-        if para == item.mob_paragraphs[item.mob_paragraphs.length - 1]
-          a.more( href="#{item.link}" ) MORE >>
+    //h2.timestamp.light #{item.pretty_timestamp}
+    p !{item.text}
+    a.more( href="#{item.url}" ) MORE >>
 
 html
   head

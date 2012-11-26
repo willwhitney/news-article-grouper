@@ -146,7 +146,7 @@ start_fetching = ->
 	, 60 * (60 * 1000)
 	
 
-
+exports.article_store = article_store
 exports.fetch = fetch
 exports.get_article_by_id = get_article_by_id
 exports.fetch_many = fetch_many

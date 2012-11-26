@@ -23,7 +23,10 @@ app.get '/', (req, res) ->
     
   view = "frontpage"
   if is_mobile(req)
-    view = "mobile"
+    articles = (article for id, article of content.article_store)
+    app.render 'mobile', {'articles': articles}, (err, html) ->
+      console.error err if err?
+      res.send html
   
   stories = content.get_articles_by_story()
   story_keys = content.rank_stories_by_article_quantity(stories)[0..5]

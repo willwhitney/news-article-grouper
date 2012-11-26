@@ -7,3 +7,4 @@ exports.start_fetching = ->
 exports.get_articles_by_story = nyt.get_articles_by_story
 exports.rank_stories_by_article_quantity = nyt.rank_stories_by_article_quantity
 exports.get_article_by_id = nyt.get_article_by_id
+exports.article_store = nyt.article_store
