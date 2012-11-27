@@ -2,6 +2,8 @@
 mixin card(article)
   .card
     h3.headline #{article.title}
+    - if (article.image !== undefined)
+      img.article_image(src=article.image.link)
     p.abstract
       | #{article.abstract}
 
@@ -9,6 +11,7 @@ mixin card(article)
 mixin card_stack(story, articles)
   .card_stack(id = story.replace(/\s+/g, ''))
     h2.story_name #{story}
+    - articles.reverse();
     for article in articles.slice(articles.length - 4, articles.length)
       +card(article)
     

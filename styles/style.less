@@ -1,7 +1,7 @@
 @import "shared.less";
 
 @lightbox_width: 600px;
-@card_height: 600px;
+@card_height: 700px;
 @card_minimum: 5px;
 @card_margin_bottom: @card_minimum - @card_height;
 
@@ -46,17 +46,17 @@ body {
 		.article_text {
 			overflow: hidden;
 			float: left;
-			height: @card_height - 115px;
+			// height: @card_height - 115px;
 		}
 	}
 	
 	.card_top {
-		height: 600px;
+		height: @card_height;
 		z-index: 3;
 	}
 	
 	.card_under {
-		max-height: 600px;
+		max-height: @card_height;
 		z-index: 2;
 		
 	}
@@ -89,6 +89,8 @@ body {
 		margin-left: -1 * @lightbox_width / 2;
 		width: @lightbox_width;
 		height: @card_height;
+		overflow: hidden;
+		// overflow-x: visible;
 		
 		// fake blur hacks, still a little slow
 		// box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.1); // blur is SLOOOW
@@ -113,6 +115,16 @@ body {
 			border: 1px #000 solid;
 			background-color: white;
 		}
+		
+		.article_image {
+			display: block;
+			vertical-align: middle;
+			max-width: 100%;
+			max-height: 75%;
+			margin: 0 auto;
+			
+		}
+		
 	}
 	
 	.card_under {

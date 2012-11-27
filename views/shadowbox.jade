@@ -6,6 +6,8 @@ mixin card(article)
     h4.timestamp #{article.published_date}
     p.abstract
       | #{article.abstract}
+    - if (article.image !== undefined)
+      img.article_image(src=article.image.link)
     p.article_text
       - if (article.text === undefined)
         a( href="#{article.url}" ) Source
@@ -23,6 +25,7 @@ html
     #content
     .lightbox
       .card_stack
+        - story.reverse();
         for article in story
           +card(article)
         

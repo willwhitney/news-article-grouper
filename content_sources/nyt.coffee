@@ -29,6 +29,9 @@ fetch = (finished_callback, offset) ->
 			articles = JSON.parse(body).results
 			console.log "Received #{articles.length} results from the NYT."
 			for article in articles
+				# console.log article
+				# if article.media[0]?
+				# 	console.log article.media[0]['media-metadata']
 				# console.log article.title
 				# console.log article.abstract
 				# console.log "section: #{article.section}  type: #{article.type}"
@@ -44,6 +47,13 @@ fetch = (finished_callback, offset) ->
 		# setTimeout( () ->
 		# 	get_articles_by_story('ENTREPRENEURSHIP')
 		# , 10000)
+		else
+			console.error """
+			\n
+			NYT error.
+			Error: #{error}
+			Body: #{body}
+			"""
 		if finished_callback?
 			finished_callback(article_store)
 
@@ -63,12 +73,17 @@ fetch_many = (finished_callback, count) ->
 fetch_body = (article) ->
 	request diffbot_url(article.url), (error, response, body) ->
 		if !error and response.statusCode == 200
-			text = JSON.parse(body).text
+			result = JSON.parse(body)
+			text = result.text
+			images = (media for media in result.media when media.type == 'image') if result.media?
+			images = (image for image in images when image.primary == 'true') if images? and images.length > 0
 			if text?
 				article.text = text.replace("\n", "<br /><br />","g")
+			if images? and images.length > 0
+				article.image = images[0]
 			else
 				article.text = undefined
-			# console.log article_store[article.id]
+			# console.log article.image
 		else
 			console.error """
 			\n
@@ -104,7 +119,7 @@ get_articles_by_story = (story) ->
 		for article_id of article_store
 			article = article_store[article_id]
 			if article.des_facet? and article.section != 'Opinion'
-				for facet in article.des_facet
+				for facet in article.des_facet when facet != 'DEATHS (OBITUARIES)' and facet != 'DEATHS(OBITUARIES)'
 					stories[facet] = [] if !stories[facet]?
 					stories[facet].push(article)
 		return stories

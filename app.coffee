@@ -17,6 +17,38 @@ is_mobile = (req) ->
     return true
   else return false
 
+get_story_with_image = (story) ->
+  for article, index in story
+    if article.image?
+      if index > 0
+        story = [article].concat story[...index].concat story[index..]
+      return story
+  return story
+  
+dedupe_story = (story) ->
+  titles = {}
+  new_story = []
+  for article, index in story
+    if titles[article.title] != true
+      titles[article.title] = true
+      new_story.push article
+  return new_story
+  
+dedupe_all_stories = (stories, ordering) ->
+  titles = {}
+  new_stories = {}
+  if !ordering?
+    ordering = Object.keys(stories)
+  for story in ordering
+    for article, index in stories[story]
+      if titles[article.title] != true
+        titles[article.title] = true
+        if !new_stories[story]?
+          new_stories[story] = []
+        new_stories[story].push article
+  return new_stories
+
+
 app.get '/', (req, res) ->
   # for article in content.articles()
   #   article.pretty_timestamp = moment(article.pubdate).fromNow().toUpperCase()
@@ -29,11 +61,15 @@ app.get '/', (req, res) ->
       res.send html
   
   stories = content.get_articles_by_story()
-  story_keys = content.rank_stories_by_article_quantity(stories)[0..5]
+  story_keys = content.rank_stories_by_article_quantity(stories)
+  stories = dedupe_all_stories(stories, story_keys)
+  
+#   yes, repeated - makes sure that we're getting the best of the deduped
+  story_keys = content.rank_stories_by_article_quantity(stories)
   
   page_stories = {}
-  for key in story_keys
-    page_stories[key] = stories[key]
+  for key in story_keys[0..11]
+    page_stories[key] = get_story_with_image(stories[key])
   # console.log page_stories
   
   
@@ -47,7 +83,12 @@ app.get '/shadowbox/:story', (req, res) ->
     return res.redirect '/'
   
   story_name = req.params.story
-  story = content.get_articles_by_story(story_name)[story_name]
+  
+  stories = content.get_articles_by_story()
+  story_keys = content.rank_stories_by_article_quantity(stories)
+  stories = dedupe_all_stories(stories, story_keys)
+  
+  story = get_story_with_image(stories[story_name])
     
   app.render 'shadowbox', {'story': story}, (err, html) ->
     console.error err if err?
